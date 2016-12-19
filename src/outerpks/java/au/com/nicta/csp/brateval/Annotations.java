@@ -46,8 +46,8 @@ public class Annotations
 
 							String [] locations = fields[1].substring(ent[0].length()).trim().split(";");
 
-							if (locations.length > 1)
-							{System.out.println(Arrays.toString(locations));}
+//							if (locations.length > 1)
+//							{System.out.println(Arrays.toString(locations));}
 
 							LinkedList <Location> l = new LinkedList <Location> ();
 

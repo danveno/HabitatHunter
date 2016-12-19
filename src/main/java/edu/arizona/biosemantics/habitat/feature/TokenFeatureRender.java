@@ -15,6 +15,7 @@ import edu.arizona.biosemantics.bb.Config;
 import edu.arizona.biosemantics.discourse.Phrase;
 import edu.arizona.biosemantics.discourse.Token;
 import edu.arizona.biosemantics.discourse.TokenAttribute;
+import edu.arizona.biosemantics.dl.WekaClusterMatcher;
 import edu.arizona.biosemantics.habitat.io.FileUtil;
 import edu.arizona.biosemantics.habitat.io.PlainTextReader;
 import edu.arizona.biosemantics.habitat.ontology.OntologyManager;
@@ -41,6 +42,8 @@ public class TokenFeatureRender {
 	private OntologyMapping ncbiNonBacOntoMapping;
 	private OntologyMapping biotopeOntoMapping;
 	
+	private WekaClusterMatcher wordEmbeddingCluster;//word embedding clusters
+	
 	private LemmaAlignment lemmaAlignment;
 	private WordSenseRender wordSenseRender;
 	private PhraseExtractor phraseExtractor;
@@ -56,6 +59,8 @@ public class TokenFeatureRender {
 		wordSenseRender = new WordSenseRender();
 		phraseExtractor = new PhraseExtractor();
 		initOntologyMappingTool();
+		wordEmbeddingCluster = new WekaClusterMatcher();
+		wordEmbeddingCluster.initialize(Config.wordEmbeddingClusterFile);
 	}
 	
 	public void initOntologyMappingTool(){
@@ -120,6 +125,102 @@ public class TokenFeatureRender {
 		return datasetTokens;
 	}
 	
+	/**
+	 * render the features for CRF Inputs
+	 * The tokens are based on Stanford conllx results.
+	 * @param inputFolder
+	 * @param datasetName
+	 */
+	public List<Token> renderNoFeature(String datasetName, String alltokenFile) {
+		// read collx
+		String collxDatasetFolder = Config.stanfordFolder + "/" + datasetName;
+		// hold all the tokens in the dataset
+		List<Token> datasetTokens = new ArrayList();
+
+		File stanfordFolderFile = new File(collxDatasetFolder);
+		File[] collxFiles = stanfordFolderFile.listFiles();
+		for (File collxFile : collxFiles) {
+			if (collxFile.getName().indexOf(".conllx") == -1) {
+				continue;
+			}
+
+			fileNum++;
+			//System.out.println("current fileName:" + collxFile.getName());
+			datasetTokens.addAll(this.renderNoFeatureForFile(datasetName, collxFile.getName()));
+			
+		}// /one document end
+		
+		FileWriter fw;
+		try {
+			fw = new FileWriter(alltokenFile);
+			
+			for(Token token:datasetTokens){
+				fw.write(token.getText()+" "+token.getOffset()+" "+token.getOffend()+"\n");
+			}
+			fw.flush();
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return datasetTokens;
+	}
+	
+	
+	
+	
+	/**
+	 * render the features for CRF Inputs
+	 * The tokens are based on Stanford conllx results.
+	 * @param inputFolder
+	 * @param datasetName
+	 */
+	public List<Token> getFileTokenIndex(String datasetName, String fileTokenIndexFile) {
+		// read collx
+		String collxDatasetFolder = Config.stanfordFolder + "/" + datasetName;
+		// hold all the tokens in the dataset
+		List datasetTokens = new ArrayList();
+
+		File stanfordFolderFile = new File(collxDatasetFolder);
+		File[] collxFiles = stanfordFolderFile.listFiles();
+		String currentFileName = null;
+		int lineNum = 0;
+		int maxSentId = 0;
+		try {
+			FileWriter fw = new FileWriter(fileTokenIndexFile);
+		
+			for (File collxFile : collxFiles) {
+				if (collxFile.getName().indexOf(".conllx") == -1) {
+					continue;
+				}
+	
+				fileNum++;
+				//System.out.println("current fileName:" + collxFile.getName());
+				List<Token> tokenList = this.renderForFile(datasetName, collxFile.getName());
+				datasetTokens.addAll(tokenList);
+				//maxSentId = tokenList.get(tokenList.size() - 1).getSentenceId()+1;
+				//lineNum += tokenList.size() + maxSentId;
+	
+	//			if (currentFileName != null && !currentFileName.equals(fileName)) {
+	//				// outputCRFFileBlank(crfFile);
+	//				lineNum += 1;
+	//			}
+	//			currentFileName = fileName;
+	
+				// output to a file
+				fw.write(collxFile.getName().replace(".conllx", "")+" "+lineNum+" "+(lineNum + tokenList.size()-1));
+				fw.write("\n");
+				lineNum += tokenList.size();
+			}// /one document end
+			fw.flush();
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return datasetTokens;
+	}
+	
 	
 	/**
 	 * 
@@ -152,7 +253,11 @@ public class TokenFeatureRender {
 		for(Token sfToken : sfTokenList){
 			String sfText = sfToken.getText();
 			sfText = sfText.replace("`", "'");
-			
+			//System.out.println(sfText+"   org     ");
+			if(gtIndex>=gtTokenList.size()){
+				System.out.println(sfTokenList.size()+" "+gtTokenList.size());
+				continue;
+			}
 			Token gtToken = gtTokenList.get(gtIndex);
 			String gtText = gtToken.getText();
 			
@@ -231,13 +336,16 @@ public class TokenFeatureRender {
 				sentId++;
 				continue;
 			}
-			//System.out.println(line);
 			DepTreeItem[] relation = transformRelation(line,sentId);
 			DepTreeItem source = relation[1];//by order
 			int sourceTokenId = getToken(tokenList, startId, source.getText());
 			startId = sourceTokenId;
-			Token sourceToken = tokenList.get(sourceTokenId);
-			tokenmap.put(source, sourceToken);
+			try{
+				Token sourceToken = tokenList.get(sourceTokenId);
+				tokenmap.put(source, sourceToken);
+			}catch(Exception e){
+				
+			}
 		}
 		
 		//renumber sentence
@@ -314,8 +422,9 @@ public class TokenFeatureRender {
 	 * @return
 	 */
 	public DepTreeItem[] transformRelation(String relationStr, int sentId) {
+		//nummod(cis-14, -1,2-15)
 		String twoTermStr = relationStr.substring(relationStr.indexOf("(")+1, relationStr.indexOf(")"));
-		String[] terms = twoTermStr.split(",");
+		String[] terms = twoTermStr.split(", ");
 		terms = recoverRelation(terms);
 		String targetStr = terms[0].substring(0,terms[0].lastIndexOf("-"));
 		String targetId = terms[0].substring(terms[0].lastIndexOf("-")+1, terms[0].length());
@@ -511,6 +620,39 @@ public class TokenFeatureRender {
 	 * @param collxFile
 	 * @return
 	 */
+	public List<Token> renderNoFeatureForFile(String datasetName,String collxFileName){
+		
+		File collxFile = new File(collxFileName);
+		List fileTokenList = new ArrayList();
+		
+		String fileName = FileUtil.getFileName(collxFile.getName());
+		System.out.println("current fileName:" + fileName);
+
+		// read token list from Stanford shallow parse results
+		String shpFile = Config.stanfordFolder + "/" + datasetName+"/"+fileName+".txt.shp";
+		List<Token> tokenList = resourceReader.readTokenFromShallowParse(shpFile);
+
+		// obtain offset information
+		String txtFile = Config.txtFolder + "/" + datasetName + "/" + fileName + ".txt";
+		//tokenList = plainTextReader.matchOffset(txtFile, tokenList);
+		
+		// read token list from GENIA tagger results
+		String gtFile = Config.geniatagFolder+ "/" + datasetName+"/"+fileName+".gt";
+		List gtTokenList = resourceReader.readTokenFromGeniaTagger(gtFile);
+		
+		gtTokenList = resourceReader.finerTokenize(gtTokenList);
+		//TODO: combine them into a final token list
+		tokenList = mergeStanfordGeniaTokens(tokenList, gtTokenList);
+		return tokenList;
+	}
+	
+	
+	/**
+	 * for a file, get the token list and render the features 
+	 * @param datasetName
+	 * @param collxFile
+	 * @return
+	 */
 	public List<Token> renderForFile(String datasetName,String collxFileName){
 		
 		File collxFile = new File(collxFileName);
@@ -639,6 +781,8 @@ public class TokenFeatureRender {
 			String posTag = (String)token.getAttribute(TokenAttribute.POS);
 			token.setAttribute(TokenAttribute.wordSense, wordSenseRender.getExtendedSense(token.getLemma(), posTag));
 			
+			token.setAttribute(TokenAttribute.wordEmbedCluster, wordEmbeddingCluster.findCluster(token.getText()));
+			
 			/*
 			 * for(BBEntity currentEntity : annEntityList){
 			 * if(currentEntity.
@@ -651,7 +795,7 @@ public class TokenFeatureRender {
 			 */
 			String nerType = detectNERType(annEntityList, token);
 			token.setAttribute(TokenAttribute.NER, nerType);
-			if(nerType.equals("Geographical")) System.out.println(token.getAttribute(TokenAttribute.NER));
+			//if(nerType.equals("Geographical")) System.out.println(token.getAttribute(TokenAttribute.NER));
 			fileTokenList.add(token);
 		}
 		return fileTokenList;
@@ -1066,11 +1210,16 @@ public class TokenFeatureRender {
 	
 	
 	public static void main(String[] args){
-		String datasetName = "BioNLP-ST-2016_BB-cat+ner_dev";
+		//String datasetName = "BioNLP-ST-2016_BB-event_dev";
+		String datasetName = "BioNLP-ST-2013_Bacteria_Biotopes_test";
 		TokenFeatureRender tokenFeatureRender = new TokenFeatureRender();
 		List tokenList = tokenFeatureRender.render(datasetName);
 		//tokenFeatureRender.extractPhrase(datasetName);
 		//List datasetTokens = tokenFeatureRender.renderCRFInputFeatures(datasetName);
 		//tokenFeatureRender.transformRelation("amod(lymphoma-8, mucosa-associated-7)",1);
+		tokenFeatureRender.getFileTokenIndex(datasetName, "F:\\Habitat\\BacteriaBiotope\\experiments\\seqlab\\2013\\BioNLP-ST-2013_Bacteria_Biotopes_test_line.txt");
+		tokenFeatureRender.renderNoFeature(datasetName, "F:\\Habitat\\BacteriaBiotope\\experiments\\seqlab\\2013\\BioNLP-ST-2013_Bacteria_Biotopes_test_alltokens.txt");
+		//tokenFeatureRender.renderNoFeature(datasetName, "F:\\Habitat\\BacteriaBiotope\\experiments\\seqlab\\2016\\BioNLP-ST-2016_BB-event_dev_alltokens.txt");
+		//tokenFeatureRender.renderNoFeature(datasetName, "F:\\Habitat\\BacteriaBiotope\\experiments\\seqlab\\2013\\BioNLP-ST-2013_Bacteria_Biotopes_dev_alltokens.txt");
 	}
 }

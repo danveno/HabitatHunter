@@ -48,7 +48,7 @@ public class A1FormatFileUtil {
 						br = new BufferedReader(new InputStreamReader(new FileInputStream(aFile)));
 						String line = null;
 						while((line=br.readLine())!=null){
-							entityList.add(this.parseLine(line, docName));
+							if(line.startsWith("T")) entityList.add(this.parseLine(line, docName));
 						}
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
@@ -120,6 +120,7 @@ public class A1FormatFileUtil {
 	 * output entities to the target output folder
 	 */
 	public void write(String outputFolder, String fileName, List<BBEntity> entities){
+		if(fileName.indexOf(".")>-1) fileName = fileName.substring(0, fileName.indexOf("."));
 		try{
 			FileWriter fw = new FileWriter(new File(outputFolder+"/"+fileName+".a1"));
 			int eid=1;
@@ -157,13 +158,23 @@ public class A1FormatFileUtil {
 	
 	public static void main(String[] args){
 		A1FormatFileUtil entityReader = new A1FormatFileUtil();
-		String folder = "F:\\Habitat\\Bacteria Biotope\\bionlp 2016\\BioNLP-ST-2016_BB-cat_dev";
+		String folder = "F:\\Habitat\\BacteriaBiotope\\2013\\BioNLP-ST-2013_Bacteria_Biotopes_test";
 		List<BBEntity> entities = entityReader.readFromFolder(folder);
+		
+		int bacterianum=0;
+		int habitatnum=0;
+		int geographicnum=0;
 		for(BBEntity bbentity : entities){
 			if(bbentity.getType().equals("Bacteria")){
-				System.out.println(bbentity.getName());
+				bacterianum++;
+			}else if(bbentity.getType().equals("Habitat")){
+				habitatnum++;
+			}else if(bbentity.getType().equals("Geographical")){
+				geographicnum++;
 			}
 		}
+		
+		System.out.println("bacterianum="+bacterianum+" habitatnum="+habitatnum+" geographicnum="+geographicnum);
 	}
 	
 }

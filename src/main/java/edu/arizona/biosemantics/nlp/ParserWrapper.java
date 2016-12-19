@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Properties;
 
 import edu.arizona.biosemantics.habitat.io.FileUtil;
+import edu.arizona.biosemantics.util.StringUtil;
 import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
@@ -406,26 +407,40 @@ public class ParserWrapper {
 		//String sourceFolder = "F:\\Habitat\\BacteriaBiotope\\resources\\microbiadataset\\combined";
 		//String destFolder = "F:\\Habitat\\BacteriaBiotope\\resources\\microbiadataset\\combined_parsed";
 		
-		String sourceFolder = "F:\\Habitat\\BacteriaBiotope\\2016\\BioNLP-ST-2013_Bacteria_Biotopes_dev";
-		String destFolder = "F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\stanford-parser\\dev\\BioNLP-ST-2013_Bacteria_Biotopes_dev";
+		String sourceFolder = "F:\\Habitat\\BacteriaBiotope\\2013\\BioNLP-ST-2013_Bacteria_Biotopes_test";
+		String destFolder = "F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\stanford-parser\\test\\BioNLP-ST-2013_Bacteria_Biotopes_test";
 		File[] files = new File(sourceFolder).listFiles();
+		
+		
+		try {
+		//	FileWriter fw = new FileWriter("F:\\Habitat\\BacteriaBiotope\\resources\\microbiadataset\\all_tokens.txt");
 		
 		for(int i=0; i<files.length;i++){
 			File file = files[i];
 			String fileName = file.getName();
 			if(!fileName.endsWith(".txt")) continue;//only process TEXT file
-			try {
 				String text = FileUtil.readContent(file);
 				parser.printParsing(file.getPath(), destFolder+"/"+fileName+".conllx");
 				parser.parseEnhancedTypedDependency(text, destFolder+"/"+fileName);
 				parser.shallowParse(text, destFolder+"/"+fileName);
 				parser.getPhraseHead(text, destFolder+"/"+fileName);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+				
+//				List<String[]> sents = parser.tokenize(file.getAbsolutePath());
+//				for(String[] sent:sents){
+//					for(String word:sent){
+//						if(!StringUtil.isPunctuation(word)) fw.write(word+" ");
+//					}
+//					fw.write("\n");
+//				}
+//				fw.flush();
 		}
 		
+//		fw.close();
 		
+		
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 //		String file = "F:\\Habitat\\BacteriaBiotope\\resources\\microbiadataset\\combined\\2006151.txt";
 //		//parser.parseTypedDependency(file);
 //		parser.parseEnhancedTypedDependency("Comparison of constitutive and inducible transcriptional enhancement mediated by kappa B-related sequences: modulation of activity in B cells by human T-cell leukemia virus type I tax gene. ");

@@ -16,18 +16,26 @@ import java.util.TreeSet;
  *
  */
 public class CompareEntities {
+	
+	/**
+	 * folder1 ---test results
+	 * folder2 ---goldstandard
+	 * exact_match----true or false 
+	 * @param argc
+	 * @throws IOException
+	 */
 	public static void main(String argc[]) throws IOException {
-		//String folder1 = argc[0];
-		//String folder2 = argc[1];
-		//boolean exact_match = Boolean.parseBoolean(argc[2]);
-		boolean exact_match = true;
+		String folder1 = argc[0];
+		String folder2 = argc[1];
+		boolean exact_match = Boolean.parseBoolean(argc[2]);
+		//boolean exact_match = true;
 
 		// folder1 test results
-		String folder1 = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\entity5";
+		//String folder1 = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\entity5";
 		
 		// folder2 goldstandard
 		
-		String folder2 = "F:\\Habitat\\BacteriaBiotope\\2016\\BioNLP-ST-2016_BB-cat+ner_dev\\";
+		//String folder2 = "F:\\Habitat\\BacteriaBiotope\\2016\\BioNLP-ST-2016_BB-cat+ner_dev\\";
 		// boolean exact_match = false;
 
 		Map<String, Integer> entityTP = new TreeMap<String, Integer>();
@@ -77,8 +85,8 @@ public class CompareEntities {
 							entityFP.put(e.getType(),
 									entityFP.get(e.getType()) + 1);
 						}
-						System.out.println("FP: " + e + " \t\t("
-								+ file.getName() + ")");
+						//System.out.println("FP: " + e + " \t\t("
+						//		+ file.getName() + ")");
 					}
 				}
 
@@ -109,10 +117,10 @@ public class CompareEntities {
 			}
 		}
 
-		System.out.println("");
-		System.out.println("Summary");
-		System.out.println("\tTP" + "\tFP" + "\tFN" + "\tPrecision"
-				+ "\tRecall" + "\tF1");
+		//System.out.println("");
+		//System.out.println("Summary");
+		//System.out.println("\tTP" + "\tFP" + "\tFN" + "\tPrecision"
+		//		+ "\tRecall" + "\tF1");
 
 		int allTP = 0;
 		int allFP = 0;
@@ -144,7 +152,7 @@ public class CompareEntities {
 						/ (double) (precision + recall);
 			}
 
-			System.out.println(et + "\t" + TP + "\t" + FP + "\t" + FN + "\t"
+			System.out.print("\t"+et + "\t" + TP + "\t" + FP + "\t" + FN + "\t"
 					+ String.format("%1.4f", precision) + "\t"
 					+ String.format("%1.4f", recall) + "\t"
 					+ String.format("%1.4f", f_measure));
@@ -167,7 +175,7 @@ public class CompareEntities {
 					/ (double) (precision + recall);
 		}
 
-		System.out.println("Overall" + "\t" + allTP + "\t" + allFP + "\t"
+		System.out.println("\tOverall" + "\t" + allTP + "\t" + allFP + "\t"
 				+ allFN + "\t" + String.format("%1.4f", precision) + "\t"
 				+ String.format("%1.4f", recall) + "\t"
 				+ String.format("%1.4f", f_measure));

@@ -1,4 +1,4 @@
-package BioSemantics.HabitatHunter;
+package edu.arizona.biosemantics.dl;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -15,24 +15,16 @@ import java.util.TreeSet;
 
 import edu.arizona.biosemantics.habitat.io.FileUtil;
 
+
+/**
+ * read and write word2vec model file
+ * 
+ * @author maojin
+ *
+ */
 public class Word2VecReader {
 
-	public static void main(String[] args) throws IOException {
-
-		List<String> uniqueWords = FileUtil
-				.readLineFromFile("F:/Habitat/BacteriaBiotope/resources/dataset_unique_words.txt");
-		Set candWord = new HashSet();
-		for (String uniqueWord : uniqueWords) {
-			candWord.add(uniqueWord.trim());
-		}
-
-		Word2VecReader vec = new Word2VecReader();
-		vec.loadModel("F:/dataset/pubmed/PubMed-and-PMC-w2v.bin", candWord);
-		// System.out.println(vec.distance("男人"));
-		System.out.println(vec.analogy("中华民国", "中华人民共和国", "毛泽东"));
-		// 男人 国王 女人
-	}
-
+	
 	private HashMap<String, float[]> wordMap = new HashMap<String, float[]>();
 
 	private int words;
@@ -77,10 +69,10 @@ public class Word2VecReader {
 				}
 				if (candWord.contains(word)) {
 					wordMap.put(word, vectors);
-					System.out.print(word + " ");
-					for (float f : vectors)
-						System.out.print(f + " ");
-					System.out.println(" ");
+//					System.out.print(word + " ");
+//					for (float f : vectors)
+//						System.out.print(f + " ");
+//					System.out.println(" ");
 				}
 				dis.read();
 			}

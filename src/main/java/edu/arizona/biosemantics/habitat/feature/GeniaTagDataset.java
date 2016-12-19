@@ -84,8 +84,8 @@ public class GeniaTagDataset {
 	
 	
 	public static void main(String[] args){
-		String sourceFile = "F:\\Habitat\\BacteriaBiotope\\2016\\BioNLP-ST-2013_Bacteria_Biotopes_dev";
-		String saveFile = "F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\genia-tagger\\dev\\BioNLP-ST-2013_Bacteria_Biotopes_dev";
+		String sourceFile = "F:\\Habitat\\BacteriaBiotope\\2013\\BioNLP-ST-2013_Bacteria_Biotopes_test";
+		String saveFile = "F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\genia-tagger\\test\\BioNLP-ST-2013_Bacteria_Biotopes_test";
 		
 		GeniaTagDataset  gt = new GeniaTagDataset("D:/Program Files/geniatagger301/geniatagger.exe");
 		//gt.tag(sourceFile, saveFile);

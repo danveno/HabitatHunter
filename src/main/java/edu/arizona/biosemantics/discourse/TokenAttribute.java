@@ -36,7 +36,7 @@ public enum TokenAttribute {
 	InNonBacteria, //presence in NCBI NonBacteria
 	CocoaType,//the entity type by Cocoas
 	BrownCluster,//brown cluster
+	wordEmbedCluster, //word embedding cluster
 	NER	//answer
-
 
 }

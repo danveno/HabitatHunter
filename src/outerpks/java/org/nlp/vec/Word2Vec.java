@@ -29,7 +29,7 @@ public class Word2Vec {
     private double alpha;       // 学习率，并行时由线程更新
     private double alphaThresold;
     private double initialAlpha;  // 初始学习率
-    private int freqThresold = 5;
+    private int freqThresold = 1;
     private final byte[] alphaLock = new byte[0];  // alpha同步锁
     private final byte[] treeLock = new byte[0];  // alpha同步锁
     private final byte[] vecLock = new byte[0];  // alpha同步锁
@@ -54,14 +54,14 @@ public class Word2Vec {
 
         private int vectorSize = 200;
         private int windowSize = 5;
-        private int freqThresold = 5;
+        private int freqThresold = 1;//default is 5
 
         private Method trainMethod = Method.Skip_Gram;
 
         private double sample = 1e-3;
 //        private int negativeSample = 0;
 
-        private double alpha = 0.025, alphaThreshold = 0.0001;
+        private double alpha = 0.025, alphaThreshold = 0.00001;
         private int numOfThread = 1;
 
 

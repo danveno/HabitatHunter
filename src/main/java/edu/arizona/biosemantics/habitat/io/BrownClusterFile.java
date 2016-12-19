@@ -17,6 +17,44 @@ import edu.arizona.biosemantics.util.StringUtil;
  */
 public class BrownClusterFile {
 	
+	
+	/**
+	 * .txt.shp
+	 * get the tokens from ".txt.shp" and generate new files
+	 * @param shpFolder
+	 * @param tokenizedFolder
+	 */
+	public void obtainFromShallowParsed(String shpFolder, String tokenizedFolder){
+		try {
+				File folderFile = new File(shpFolder);
+				File[] tokenFiles = folderFile.listFiles();
+				
+				for(File tokenFile : tokenFiles){
+					String fileName = tokenFile.getName();
+					//if(!fileName.endsWith(".shp")) continue;
+					//conllx
+					if(!fileName.endsWith(".conllx")) continue;
+					FileWriter fw = new FileWriter(tokenizedFolder+"/"+fileName.replace(".conllx", ""));
+					//FileWriter fw = new FileWriter(tokenizedFolder+"/"+fileName.replace(".shp", ""));
+					List<String> lines = FileUtil.readLineFromFile(tokenFile);
+					for(String line:lines){
+						String[] tokens = line.split("[\\s\t]+");
+						if(tokens.length>1){
+							//fw.write(tokens[0]);
+							fw.write(tokens[1]);
+							fw.write(" ");
+						}else{
+							fw.write("\n");
+						}
+					}
+					fw.flush();
+					fw.close();
+				}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * read from stanford tokenizer
 	 * 
@@ -55,9 +93,19 @@ public class BrownClusterFile {
 	
 	public static void main(String[] args){
 		BrownClusterFile bcf = new BrownClusterFile();
-		String[] inputFolders = {"F:\\Habitat\\BacteriaBiotope\\resources\\microbiadataset\\bactbiotope2016_161_parsed"};
-		String brownClusterInput = "F:\\Habitat\\BacteriaBiotope\\resources\\browncluster\\browncluster_bb16data_input.txt";
+		/*
+		//1, get tokenized files from shallowparsed files
+		String shpfolder ="F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\stanford-parser\\train/BioNLP-ST-2013_Bacteria_Biotopes_train";
+		//String shpfolder ="F:\\Habitat\\BacteriaBiotope\\resources\\microbiadataset\\combined_parsed";
+		String tokenizedFolder ="F:\\Habitat\\BacteriaBiotope\\resources\\microbiadataset\\bactbiotope2013_trdete";
+		
+		bcf.obtainFromShallowParsed(shpfolder, tokenizedFolder);
+		*/
+		/* 2, combine into one file */
+		String[] inputFolders = {"F:\\Habitat\\BacteriaBiotope\\resources\\microbiadataset\\bactbiotope2013_trdete"};
+		String brownClusterInput = "F:\\Habitat\\BacteriaBiotope\\resources\\browncluster\\browncluster_13trdete_input.txt";
 		bcf.genInputFile(inputFolders, brownClusterInput);
+		
 	}
 	
 

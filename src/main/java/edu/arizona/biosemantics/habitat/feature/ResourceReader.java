@@ -132,7 +132,7 @@ public class ResourceReader {
 		File file = new File(fileName);
 		List tokenList = new ArrayList();
 		try {
-			System.out.println(fileName);
+			//System.out.println(fileName);
 			//File file = new File(filePath);
 			int sentId =0;
 			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -432,15 +432,20 @@ public class ResourceReader {
 	 * @return
 	 */
 	public List<BBEntity> readAnnEntities(String filePath){
+		List<BBEntity> entities = new ArrayList();
+		try{
 		File file = new File(filePath);
 		List<String> lineStr = FileUtil.readLineFromFile(file);
 		String fileName = FileUtil.getFileName(file.getName());
-		List<BBEntity> entities = new ArrayList();
+		
 		A1FormatFileUtil alReader = new A1FormatFileUtil();
 		for(String line:lineStr){
 			if(!line.startsWith("T")) continue;
 			BBEntity entity = alReader.parseLine(line,fileName);
 			if(!"Title".equals(entity.getType())&&!"Paragraph".equals(entity.getType()))entities.add(entity);
+		}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 		return entities;
 	}

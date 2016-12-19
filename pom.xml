@@ -164,13 +164,19 @@
 			<version>1.1.10</version>
 		</dependency>
 		
-		<!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-dev -->
+		<!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
 		<dependency>
 		    <groupId>nz.ac.waikato.cms.weka</groupId>
-		    <artifactId>weka-dev</artifactId>
-		    <version>3.7.5</version>
+		    <artifactId>weka-stable</artifactId>
+		    <version>3.8.0</version>
 		</dependency>
-		
+
+		<dependency>
+		    <groupId>nz.ac.waikato.cms.weka</groupId>
+		    <artifactId>optics_dbScan</artifactId>
+		    <version>1.0.4</version>
+		</dependency>
+
 		<dependency>
 			<groupId>tw.edu.ntu.csie</groupId>
 			<artifactId>libsvm</artifactId>

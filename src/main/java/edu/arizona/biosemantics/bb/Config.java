@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Config {
 	
-	public static String dataset = "dev";
-	public static String txtFolder ="F:\\Habitat\\BacteriaBiotope\\2016";
-	public static String a1AnnFolder ="F:\\Habitat\\BacteriaBiotope\\2016";
+	public static String dataset = "test";
+	public static String txtFolder ="F:\\Habitat\\BacteriaBiotope\\2013";
+	public static String a1AnnFolder ="F:\\Habitat\\BacteriaBiotope\\2013";
 	public static String stanfordFolder = "F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\stanford-parser\\"+dataset;
 	public static String speciesFolder ="F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\species-dictionary\\"+dataset;
 	public static String linnaeusFolder ="F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\linnaeus\\"+dataset;
@@ -15,7 +15,8 @@ public class Config {
 	public static String geniatagFolder  ="F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\genia-tagger\\"+dataset;
 	public static String nounPhraseFolder = "F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\nounphrase\\"; 
 	
-	public static String brownClusterFile = "F:\\Habitat\\BacteriaBiotope\\resources\\browncluster\\browncluster_bb16data_150c.txt";
+	public static String brownClusterFile = "F:\\Habitat\\BacteriaBiotope\\resources\\browncluster\\13trdete_150.txt";
+	//public static String brownClusterFile = "F:\\Habitat\\BacteriaBiotope\\resources\\browncluster\\16trdetepl_200.txt";
 	
 	public static String ncbiNamesDmp = "F:\\Habitat\\BacteriaBiotope\\resources\\NCBI Taxonomy\\names.dmp";
 	public static String ncbiCleanedTokens = "F:\\Habitat\\BacteriaBiotope\\resources\\ontology term list\\bacteria_finer_tokens.txt";
@@ -37,7 +38,8 @@ public class Config {
 	public static String multiFilterOptions = "-D -F weka.filters.unsupervised.attribute.StringToWordVector " + stringToWordVectorOptions + "";
 	public static String libSVMOptions = "-h 0 -S 0 -D 3 -K 2 -G 0 -R 0 -N 0.5 -M 100 -C 2048 -P 1e-3";
 	
-	
+	public static String wordEmbeddingClusterFile = "F:/Habitat/BacteriaBiotope/resources/embeddingcluster/bb2013_WEC_240.txt";
+	//public static String wordEmbeddingClusterFile = "F:/Habitat/BacteriaBiotope/resources/embeddingcluster/bb2016_WEC_150.txt";
 	
 	public static List<String> strainSpecs = new ArrayList();
 	static{
@@ -89,6 +91,7 @@ public class Config {
 	
 	
 	public static List<String> genericHabitats = new ArrayList();
+	
 	static{
 		genericHabitats.add("antibiotic");
 		genericHabitats.add("antimicrobial");

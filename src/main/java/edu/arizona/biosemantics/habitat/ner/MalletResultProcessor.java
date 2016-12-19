@@ -52,6 +52,7 @@ public class MalletResultProcessor {
 			FileWriter fw = new FileWriter(conllevalFile);
 			for(int lineNum=0;lineNum<gsdLines.size();lineNum++){
 				String line = gsdLines.get(lineNum);
+				if(line.indexOf("#")>-1) line = line.substring(0, line.indexOf("#")).trim();
 				String[] gsdFields = line.split("[\\s\t]+");
 				String[] predFields = predLines.get(lineNum).split("[\\s\t]+");
 				if(gsdFields.length<2){
@@ -123,16 +124,58 @@ public class MalletResultProcessor {
 		}
 	}
 	
+	
+	public void getCollEvalFileFromSVMBIO(String gsdFile, String predictionFile, String conllevalFile){
+		//List<String> gsdLines = FileUtil.readLineFromFile(gsdFile);
+		List<String> gsdLines = FileUtil.readNonEmptyLineFromFile(gsdFile);
+		//List<String> predLines = FileUtil.readLineFromFile(predictionFile);
+		List<String> predLines = FileUtil.readNonEmptyLineFromFile(predictionFile);
+		String[] labels ={"B-Bacteria","I-Bacteria","B-Habitat","I-Habitat","B-Geographical","I-Geographical","O"};
+		try{
+			FileWriter fw = new FileWriter(conllevalFile);
+			String lastLabel = null;
+			for(int lineNum=0;lineNum<gsdLines.size();lineNum++){
+				String line = gsdLines.get(lineNum);
+				String[] gsdFields = line.split("[\\s\t]+");
+				String[] predFields = predLines.get(lineNum).split("[\\s\t]+");
+				if(gsdFields.length<2){
+					fw.write("\n");
+				}else{
+					String token = gsdFields[0];
+					String pos = gsdFields[3];
+					int classIndex = Integer.parseInt(predFields[0]);
+					String currentLabel = labels[classIndex-1];
+					//FileUtil.writeStr(fileName, label+"\n", true);
+					String outputlabel = currentLabel;
+					
+					lastLabel = currentLabel;
+					
+					fw.write(token+" "+gsdFields[gsdFields.length-1]+" "+outputlabel+"\n");
+					//fw.write(token+" "+pos+" "+gsdFields[gsdFields.length-1]+" "+predFields[0]+"\n");
+					//fw.write(token+" "+pos+" B-"+gsd[gsd.length-1]+" B-"+prediction[prediction.length-1]+"\n");
+				}
+			}
+			fw.flush();
+			fw.close();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * 1, result file---the first field is the label of the token
 	 * 2, read the token and offset
 	 * 
+	 * 
+	 * lineFile is obtained from TokenFeatureRender.getFileTokenIndex
+	 * 
 	 */
-	public void genNERA1File(String datasetName, String predictionFile, String lineFile, String outputFolder){
-		MalletInputGenerator inputGen = new MalletInputGenerator();
-		List<Token> allTokenSeqs = inputGen.readTokenSequences(datasetName);
+	public void genNERA1File(String datasetName, String predictionFile, String lineFile, List<Token> allTokenSeqs, String outputFolder){
+		//MalletInputGenerator inputGen = new MalletInputGenerator();
+		//List<Token> allTokenSeqs = inputGen.readTokenSequences(datasetName);
 		
-		List<String> predLines = FileUtil.readLineFromFile(predictionFile);
+		List<String> predLines = FileUtil.readNonEmptyLineFromFile(predictionFile);
+		//List<String> predLines = FileUtil.readLineFromFile(predictionFile);
 		
 		List<String> lineInfo = FileUtil.readLineFromFile(lineFile);
 		
@@ -160,11 +203,11 @@ public class MalletResultProcessor {
 			List<BBEntity> entities = new ArrayList();
 			
 			//read title and paragaraph
-			entities.addAll(FileUtil.readTitleAndParasFromFile(Config.txtFolder+"/"+fileName+".txt"));
+			//entities.addAll(FileUtil.readTitleAndParasFromFile(Config.txtFolder+"/"+fileName));//+".txt"
 			
 			BBEntity entity = new BBEntity();
 			entities.add(entity);
-			for(int line = startLine-1;line<endLine; line++ ){
+			for(int line = startLine;line<=endLine; line++ ){
 				Token token = allTokenSeqs.get(line);
 				
 				if(predLines.get(line).indexOf("Habitat")>-1){//habitat
@@ -209,6 +252,27 @@ public class MalletResultProcessor {
 						entity.setEnd(token.getOffend());
 						entity.setType("Bacteria");
 					}
+				}else if(predLines.get(line).indexOf("Geographical")>-1){//Geographical
+					if(entity.getName()==null){//a new one
+						entity.setName(token.getText());
+						entity.setStart(token.getOffset());
+						entity.setEnd(token.getOffend());
+						entity.setType("Geographical");
+					}else if(entity.getName()!=null&&entity.getType().equals("Geographical")){
+						if(token.getOffset()-entity.getEnd()==0){
+							entity.setName(entity.getName()+""+token.getText());
+						}else{
+							entity.setName(entity.getName()+" "+token.getText());
+						}
+						entity.setEnd(token.getOffend());
+					}else{//the former is bacteria, add to the list and create a new one
+						entity = new BBEntity();
+						entities.add(entity);
+						entity.setName(token.getText());
+						entity.setStart(token.getOffset());
+						entity.setEnd(token.getOffend());
+						entity.setType("Geographical");
+					}
 				}else if(predLines.get(line).trim().equals("O")||predLines.get(line).trim().equals("")){
 					entity = new BBEntity();
 					entities.add(entity);
@@ -223,7 +287,7 @@ public class MalletResultProcessor {
 	
 	public static void main(String[] args){
 		
-		String featureGroup = "wapiti";//all,groin,orth, orth_morph,orth_syn
+		String featureGroup = "svmhmm";//"wapiti",all,groin,orth, orth_morph,orth_syn
 		//--orders 1,2,3
 		String[] trainArgs=("--train true  --model-file F:/Habitat/BacteriaBiotope/experiments/CRFinputs/"+featureGroup+"/BioNLP-ST-2016_BB-event+ner_train.model  F:/Habitat/BacteriaBiotope/experiments/CRFinputs/"+featureGroup+"/BioNLP-ST-2016_BB-event+ner_train.txt").split("[\\s]+");
 		String[] predictArgs=("--model-file F:/Habitat/BacteriaBiotope/experiments/CRFinputs/"+featureGroup+"/BioNLP-ST-2016_BB-event+ner_train.model  --rs-file F:/Habitat/BacteriaBiotope/experiments/CRFinputs/"+featureGroup+"/BioNLP-ST-2016_BB-event+ner_dev.rs F:/Habitat/BacteriaBiotope/experiments/CRFinputs/"+featureGroup+"/BioNLP-ST-2016_BB-event+ner_dev.txt").split("[\\s]+");
@@ -234,15 +298,15 @@ public class MalletResultProcessor {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		/* */
+		/*
 		String gsdFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\"+featureGroup+"\\BioNLP-ST-2016_BB-event+ner_dev.gsd";
 		//String rsFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\BioNLP-ST-2016_BB-cat_dev_12f_rs.txt";
 		//String conllEvalFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\BioNLP-ST-2016_BB-cat_dev_12f.conll";
 		
 		
 		//String rsFile ="F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\"+featureGroup+"\\BioNLP-ST-2016_BB-cat+ner_dev_all.wptrs";
-		String rsFile ="F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\"+featureGroup+"\\BioNLP-ST-2016_BB-event+ner_dev_1316.rs";
-		String conllEvalFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\"+featureGroup+"\\BioNLP-ST-2016_BB-event+ner_dev_1316.1316conll";
+		String rsFile ="F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\"+featureGroup+"\\dev_allfeature.nrs";//BioNLP-ST-2016_BB-event+ner_dev_bk.rs _dev24
+		String conllEvalFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\"+featureGroup+"\\BioNLP-ST-2016_BB-event+ner_dev_svmhmm.conll";
 		
 		MalletResultProcessor cefGen = new MalletResultProcessor();
 		cefGen.getCollEvalFile(gsdFile,rsFile, conllEvalFile);
@@ -266,7 +330,7 @@ public class MalletResultProcessor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
+	 */
 			 
 		
 		// SVM calling
@@ -282,6 +346,12 @@ public class MalletResultProcessor {
 		
 		//cefGen.genNERA1File("BioNLP-ST-2016_BB-cat_dev", rsFile, lineFile, outputFolder);
 		 
+		 String rsFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\svmmc\\dev_predictions.txt";
+			String gsdFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\wapiti\\BioNLP-ST-2016_BB-event+ner_dev.gsd";
+			String conllEvalFile="F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\svmmc\\BioNLP-ST-2016_BB-cat+ner_dev.svmmsconll";
+			MalletResultProcessor cefGen = new MalletResultProcessor();
+			cefGen.getCollEvalFileFromSVMBIO(gsdFile,rsFile, conllEvalFile);
+		
 		 
 	}
 }

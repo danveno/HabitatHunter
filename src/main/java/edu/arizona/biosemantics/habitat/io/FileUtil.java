@@ -285,7 +285,7 @@ public class FileUtil {
 		List<String> lines = readLineFromFile(new File(filePath));
 		
 		String fileName = StringUtil.getFileName(filePath);
-		System.out.println("filePath="+fileName);
+		//System.out.println("filePath="+fileName);
 		int offset = 0;
 		for(int i=0; i<lines.size();i++){
 			String line = lines.get(i);
@@ -341,8 +341,8 @@ public class FileUtil {
 		//String trainingFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\all\\BioNLP-ST-2016_BB-cat+ner_dev.txt";
 		//String trainingRsFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\all_rs\\BioNLP-ST-2016_BB-cat+ner_dev_rs.txt";
 		
-		String source = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\wapiti\\BioNLP-ST-2016_BB-event+ner_dev_1316_rs.rs";
-		String rsFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\CRFinputs\\wapiti\\BioNLP-ST-2016_BB-event+ner_dev_1316.rs";
+		String source = "F:\\Habitat\\BacteriaBiotope\\experiments\\seqlab\\2013\\BioNLP-ST-2013_Bacteria_Biotopes_train+dev.txt";
+		String rsFile = "F:\\Habitat\\BacteriaBiotope\\experiments\\seqlab\\2013\\BioNLP-ST-2013_Bacteria_Biotopes_train+dev_bk.txt";
 		FileUtil.reverseOrder(source, rsFile);
 		
 		//FileUtil.rename("F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\cocoa\\BioNLP-ST-2016_BB-event+ner_test");

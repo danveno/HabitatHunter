@@ -377,7 +377,7 @@ public class PostProcessor {
 	public void combineAdjecent() {
 		//post processing each file
 		for(String fileName:orderredFiles){
-			System.out.println("\n\n"+fileName);
+			//System.out.println("\n\n"+fileName);
 			List<BBEntity> entities = fileEntityMap.get(fileName);
 			
 			//sort the entities
@@ -390,7 +390,6 @@ public class PostProcessor {
 			for(int i=1;i<entities.size();){
 				curEntity =entities.get(i);
 				int dif = curEntity.getStart()-lastEntity.getEnd();
-				System.out.println(curEntity.getStart()+" "+dif);
 				if((dif==0||dif==1)&&curEntity.getType().equals(lastEntity.getType())){
 					if(dif==0) lastEntity.setName(lastEntity.getName()+curEntity.getName());
 					else lastEntity.setName(lastEntity.getName()+" "+curEntity.getName());
@@ -602,6 +601,28 @@ public class PostProcessor {
 						entity.setEnd(token.getOffend());
 						entity.setType("Bacteria");
 					}
+				}else if(label.indexOf("Geographical")>-1){//Bacteria
+					if(entity.getName()==null){//a new one
+						entity.setName(token.getText());
+						entity.setStart(token.getOffset());
+						entity.setEnd(token.getOffend());
+						entity.setType("Geographical");
+						entities.add(entity);
+					}else if(entity.getName()!=null&&entity.getType().equals("Geographical")){
+						if(token.getOffset()-entity.getEnd()==0){
+							entity.setName(entity.getName()+""+token.getText());
+						}else{
+							entity.setName(entity.getName()+" "+token.getText());
+						}
+						entity.setEnd(token.getOffend());
+					}else{//the former is bacteria, add to the list and create a new one
+						entity = new BBEntity();
+						entities.add(entity);
+						entity.setName(token.getText());
+						entity.setStart(token.getOffset());
+						entity.setEnd(token.getOffend());
+						entity.setType("Geographical");
+					}
 				}else if(label.trim().equals("O")||label.trim().equals("")){
 					entity = new BBEntity();
 				}
@@ -653,6 +674,28 @@ public class PostProcessor {
 						entity.addToken(token);
 						entity.setType("Bacteria");
 					}
+				}else if(label.indexOf("Geographical")>-1){//Bacteria
+					if(entity.getName()==null){//a new one
+						entity.setName(token.getText());
+						entity.setStart(token.getOffset());
+						entity.setEnd(token.getOffend());
+						entity.setType("Geographical");
+						entities.add(entity);
+					}else if(entity.getName()!=null&&entity.getType().equals("Geographical")){
+						if(token.getOffset()-entity.getEnd()==0){
+							entity.setName(entity.getName()+""+token.getText());
+						}else{
+							entity.setName(entity.getName()+" "+token.getText());
+						}
+						entity.setEnd(token.getOffend());
+					}else{//the former is bacteria, add to the list and create a new one
+						entity = new BBEntity();
+						entities.add(entity);
+						entity.setName(token.getText());
+						entity.setStart(token.getOffset());
+						entity.setEnd(token.getOffend());
+						entity.setType("Geographical");
+					}
 				}else if(label.trim().equals("O")||label.trim().equals("")){
 					entity = new BBEntity();
 				}
@@ -684,9 +727,13 @@ public class PostProcessor {
 						outputlabel = "I-Habitat";//I-Habitat
 					}else if(currentLabel.equals("Habitat")&&!"Habitat".equals(lastLabel)){
 						outputlabel = "B-Habitat";//currentLabel
-					}if(currentLabel.equals("Bacteria")&&"Bacteria".equals(lastLabel)){
+					}else if(currentLabel.equals("Bacteria")&&"Bacteria".equals(lastLabel)){
 						outputlabel = "I-Bacteria";//I-Bacteria
 					}else if(currentLabel.equals("Bacteria")&&!"Bacteria".equals(lastLabel)){
+						outputlabel = "B-Bacteria";//B-Bacteria
+					}else if(currentLabel.equals("Geographical")&&"Geographical".equals(lastLabel)){
+						outputlabel = "I-Bacteria";//I-Bacteria
+					}else if(currentLabel.equals("Geographical")&&!"Geographical".equals(lastLabel)){
 						outputlabel = "B-Bacteria";//B-Bacteria
 					}else if(currentLabel.equals("O")){
 						outputlabel = "O";//"O"

@@ -121,6 +121,56 @@ public class VectorModel {
         return new VectorModel(wordMapLoaded, layerSizeLoaded);
 
     }
+    
+    
+    /**
+     * 使用Word2Vec保存的模型加载词向量模型
+     * @param path 模型文件路径
+     * @return 词向量模型
+     */
+    public static VectorModel loadFromSimpleFile(String path){
+
+        if (path == null || path.isEmpty()){
+            throw new IllegalArgumentException("模型路径可以为null或空。");
+        }
+
+        BufferedReader br = null;
+        int wordCount, layerSizeLoaded = 0;
+        Map<String, float[]> wordMapLoaded = new HashMap<String, float[]>();
+        try {
+        	br = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
+        	String line = br.readLine();
+        	String[] fields = line.split(" ");
+            wordCount = Integer.parseInt(fields[0]);
+            layerSizeLoaded = Integer.parseInt(fields[1]);
+           
+            String key;
+            float[] value;
+            for (int i = 0; i < wordCount; i++) {
+            	line = br.readLine();
+            	fields = line.split(" ");
+            	key = fields[0];
+            	
+                value = new float[layerSizeLoaded];
+                for (int j = 0; j < layerSizeLoaded; j++) {
+                    value[j] = Float.parseFloat(fields[j+1]);
+                }
+                wordMapLoaded.put(key, value);
+            }
+
+        } catch (IOException ioe){
+            ioe.printStackTrace();
+        }finally {
+        	try {
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        }
+
+        return new VectorModel(wordMapLoaded, layerSizeLoaded);
+
+    }
 
     /**
      * 保存词向量模型

@@ -32,8 +32,8 @@ import edu.arizona.biosemantics.habitat.ontomap.OntologyMapping;
  */
 public class MalletInputGenerator {
 	private String dataset = "dev";
-	private String txtFolder ="F:\\Habitat\\BacteriaBiotope\\bionlp 2016";
-	private String a1AnnFolder ="F:\\Habitat\\BacteriaBiotope\\bionlp 2016";
+	private String txtFolder ="F:\\Habitat\\BacteriaBiotope\\2016";
+	private String a1AnnFolder ="F:\\Habitat\\BacteriaBiotope\\2016";
 	private String collxFolder = "F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\stanford-parser\\"+dataset;
 	private String speciesFolder ="F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\species-dictionary\\"+dataset;
 	private String linnaeusFolder ="F:\\Habitat\\BacteriaBiotope\\resources\\BB3\\linnaeus\\"+dataset;

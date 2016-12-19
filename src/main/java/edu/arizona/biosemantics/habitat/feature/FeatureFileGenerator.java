@@ -269,9 +269,11 @@ public class FeatureFileGenerator {
 				fw.write("\t");
 				fw.write((boolean)token.getAttribute(TokenAttribute.InNonBacteria)?"InNonNCBIT":"O");//19 presence of the token in the NCBITaxonomy ontology but bacteria
 				fw.write("\t");
+				/*
 				String cocoa = (String)token.getAttribute(TokenAttribute.CocoaType);
 				cocoa = cocoa == null ? "O" : cocoa;
 				fw.write(cocoa+"\t");//cocoa type
+				*/
 				String geniaTagger = (String) token.getAttribute(TokenAttribute.GeniaLabel);
 				geniaTagger = geniaTagger == null ? "O\t" : geniaTagger+"\t";
 				//fw.write("u");
@@ -284,6 +286,12 @@ public class FeatureFileGenerator {
 				//fw.write("u");
 				fw.write(wordSense==null?"O":"ws_"+wordSense);//21 word sense
 				fw.write("\t");
+				
+				String wordembCluster = (String) token.getAttribute(TokenAttribute.wordEmbedCluster);
+				//fw.write("u");
+				fw.write(wordembCluster==null?"O":wordembCluster);//21 word sense
+				fw.write("\t");
+				
 				////fw.write(""+token.getAttribute(TokenAttribute.ISInSpecies)+"\t");//IN SPECIES RESULTS
 				//fw.write(""+token.getAttribute(TokenAttribute.ISInLinnaerus)+"\t");//ISInLinnaerus RESULTS
 				//the last one?
@@ -402,47 +410,75 @@ public class FeatureFileGenerator {
 		/*
 		 * BioNLP-ST-2016_BB-cat+ner_plus
 		 * BioNLP-ST-2013_Bacteria_Biotopes_train
+		 * BioNLP-ST-2016_BB-event_test
 		 * 
-		String datasetName = "BioNLP-ST-2013_Bacteria_Biotopes_train";
+		 */
+		//String datasetName = "BioNLP-ST-2016_BB-event_test";
+		//String datasetName = "BioNLP-ST-2013_Bacteria_Biotopes_train";//BioNLP-ST-2016_BB-event_test,BioNLP-ST-2013_Bacteria_Biotopes_test
+		
+		
+		/*
 		boolean isTrain = true;
-		String crfFormatFile = "F:/Habitat/BacteriaBiotope/experiments/CRFinputs/wapiti/"+datasetName+".txt";
+		//String crfFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2016/wordembed/"+datasetName+"_wec_"+clusterNum+".txt";
 		TokenFeatureRender tokenFeatureRender = new TokenFeatureRender();
 		List tokenList = tokenFeatureRender.render(datasetName);
 		
 		FeatureFileGenerator genFeatuerFile = new FeatureFileGenerator(tokenList);
 		//genFeatuerFile.outputCRFFile(crfFormatFile, isTrain);
-		String wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/CRFinputs/wapiti/"+datasetName+".txt";
+		String wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2013/"+datasetName+".txt";
+		//String wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2016/"+datasetName+".txt";
 		genFeatuerFile.outputWapitiFile(wptFormatFile, isTrain);
-		
-		
+		*/
+		/*
+		for(int clusterNum=110; clusterNum<=300; clusterNum=clusterNum+10){
+			//Config.brownClusterFile = "F:\\Habitat\\BacteriaBiotope\\resources\\browncluster\\13trdete_"+clusterNum+".txt";
+			Config.wordEmbeddingClusterFile ="F:/Habitat/BacteriaBiotope/resources/embeddingcluster/bb2013_WEC_"+clusterNum+".txt";
+			boolean isTrain = true;
+			//String crfFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2013/wordembed/"+datasetName+"_wec_"+clusterNum+".txt";
+			TokenFeatureRender tokenFeatureRender = new TokenFeatureRender();
+			List tokenList = tokenFeatureRender.render(datasetName);
+			
+			FeatureFileGenerator genFeatuerFile = new FeatureFileGenerator(tokenList);
+			//genFeatuerFile.outputCRFFile(crfFormatFile, isTrain);
+			String wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2013/wordembed/"+datasetName+"_wc_"+clusterNum+".txt";
+			//String wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2016/"+datasetName+".txt";
+			genFeatuerFile.outputWapitiFile(wptFormatFile, isTrain);
+			boolean isTrain = true;
+			TokenFeatureRender tokenFeatureRender = new TokenFeatureRender();
+			List tokenList = tokenFeatureRender.render(datasetName);
+			
+			FeatureFileGenerator genFeatuerFile = new FeatureFileGenerator(tokenList);
+			String wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2013/wordembed/"+datasetName+"_wec_"+clusterNum+".gsd";
+			genFeatuerFile.outputWapitiFile(wptFormatFile, isTrain);
+		}
+	*/
 		//FeatureFileGenerator genFeatuerFile = new FeatureFileGenerator();
 		//genFeatuerFile.truncate("F:/Habitat/BacteriaBiotope/experiments/CRFinputs/all/"+datasetName+".txt", "F:/Habitat/BacteriaBiotope/experiments/CRFinputs/all/"+datasetName+"_tr.txt");
-*/
-		/*	*/
+
+		/**/
 		
-		String datasetName = "BioNLP-ST-2013_Bacteria_Biotopes_dev";
+		String datasetName = "BioNLP-ST-2013_Bacteria_Biotopes_test";//BioNLP-ST-2016_BB-event_test,BioNLP-ST-2013_Bacteria_Biotopes_test
 		boolean isTrain = true;
-		String crfFormatFile = "F:/Habitat/BacteriaBiotope/experiments/CRFinputs/wapiti/"+datasetName+".gsd";
+		//String crfFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2013/"+datasetName+".gsd";
 		TokenFeatureRender tokenFeatureRender = new TokenFeatureRender();
 		List tokenList = tokenFeatureRender.render(datasetName);
 		
 		FeatureFileGenerator genFeatuerFile = new FeatureFileGenerator(tokenList);
-		String wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/CRFinputs/wapiti/"+datasetName+".gsd";
+		String wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2013/"+datasetName+".gsd";
 		genFeatuerFile.outputWapitiFile(wptFormatFile, isTrain);
 		//genFeatuerFile.outputCRFFile(crfFormatFile, isTrain);
 		
 		
-		datasetName = "BioNLP-ST-2013_Bacteria_Biotopes_dev";
+		datasetName = "BioNLP-ST-2013_Bacteria_Biotopes_test";
 		isTrain = false;
-		crfFormatFile = "F:/Habitat/BacteriaBiotope/experiments/CRFinputs/wapiti/"+datasetName+".txt";
 		tokenFeatureRender = new TokenFeatureRender();
 		tokenList = tokenFeatureRender.render(datasetName);
 		
 		genFeatuerFile = new FeatureFileGenerator(tokenList);
 		//genFeatuerFile.outputCRFFile(crfFormatFile, isTrain);
-		wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/CRFinputs/wapiti/"+datasetName+".txt";
+		wptFormatFile = "F:/Habitat/BacteriaBiotope/experiments/seqlab/2013/"+datasetName+".txt";
 		genFeatuerFile.outputWapitiFile(wptFormatFile, isTrain);
-	
+		
 			
 		/***
 		 * 
@@ -470,10 +506,11 @@ public class FeatureFileGenerator {
 			16 presence of the token in the OntoBiotope ontology
 			17 presence of the token in the NCBI taxonomy
 			18 presence of the token in the NCBI taxonomy but bacteria
-			19 the category of the token from the Cocoa annotation
-			20 the category of the GENIA Tagger annotation
-			21 Cluster identifier according to the Brown cluster
-			22 Word sense
+			#19 the category of the token from the Cocoa annotation
+			#19 the category of the GENIA Tagger annotation
+			20 Cluster identifier according to the Brown cluster
+			21 Word sense
+			22 word embedding
 			23 label
 		
 		
